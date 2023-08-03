@@ -1,25 +1,34 @@
 import { useState } from 'react';
-import { Form, Button, Row, Col} from 'react-bootstrap'
+import axios from 'axios'
 
 function CreateUser() {
-    const [username, setUsername] = useState("")
+    const [name, setName] = useState("")
 
     const submitHandler = async (e) => {
         e.preventDefault();
         
+        const user = {
+            username: name
+        }
+        try {
+            await axios.post('http://localhost:5000/users/add', user)
+        } catch(err) {
+            console.err(err)
+        }
+        setName("")
     }
 
     return (
         <div>
             <h3>Create New User</h3>
-            <form>
+            <form onSubmit={submitHandler}>
                 <div className='form-group'>
                     <label>Name</label>
                     <input 
                     type ="name"
                     placeholder="Enter name"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}>
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}>
                     </ input>
                 </div>
                 <div className='form-group'>
