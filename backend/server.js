@@ -5,7 +5,7 @@ import dotenv from 'dotenv' // need to look up
 import mongoose from 'mongoose'
 import exerciseRoutes from './routes/exercises.js';
 import userRoutes from './routes/users.js';
-
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // CONFIGURATION
 dotenv.config();
@@ -18,6 +18,8 @@ app.use(cors())
 
 app.use('/exercises', exerciseRoutes);
 app.use('/users', userRoutes);
+app.use(notFound);
+app.use(errorHandler);
 
 // MONGOOSE SETUP
 const uri = process.env.ATLAS_URI
