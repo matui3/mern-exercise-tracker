@@ -1,13 +1,20 @@
-import express from "express"
-import {
-    getUsers,
-    addUser
-} from "../controllers/usersController.js"
+const router = require('express').Router();
+let User = require('../models/user.model');
 
-const router = express.Router()
+router.route('/').get((req, res) => {
+    User.find()
+    .then(users => res.json(users))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
 
-router.get("/", getUsers);
+router.route('/add').post((req, res) => {
+    const username = req.body.username;
 
-router.post("/add", addUser);
+    const newUser = new User({username});
 
-export default router
+    newUser.save()
+    .then(() => res.json('User added!'))
+    .catch(err => res.status(400).json('Error: ' + err));
+})
+
+module.exports = router;
