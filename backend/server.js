@@ -1,34 +1,36 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose')
+import express from "express"
+import cors from "cors" // what is this
 
-require('dotenv').config();
+import dotenv from 'dotenv' // need to look up
+import mongoose from 'mongoose'
+import exerciseRoutes from './routes/exercises.js';
+import userRoutes from './routes/users.js';
+
+
+// CONFIGURATION
+dotenv.config();
 
 const app = express()
-const port = process.env.PORT || 5000;
-
-app.use(cors());
 app.use(express.json());
+app.use(cors())
 
-const uri = process.env.ATLAS_URI;
+// ROUTES
 
+app.use('/exercises', exerciseRoutes);
+app.use('/users', userRoutes);
+
+// MONGOOSE SETUP
+const uri = process.env.ATLAS_URI
+const port = process.env.PORT || 5000;
 main().catch(err => console.log(err));
 
+
 async function main() {
-    await mongoose.connect(uri, {useNewUrlParser: true});
+    try {
+        await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+        app.listen(port, () => console.log(`Server Port: ${port}`))
+    } catch(err) {
+        console.log(`${err} did not connect`)
+    }
+    
 }
-
-const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log("MongoDB database connection established succesfully");
-})
-
-const exercisesRouter = require('./routes/exercises');
-const usersRouter = require('./routes/users');
-
-app.use('/exercises', exercisesRouter);
-app.use('/users', usersRouter);
-
-app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
-});
