@@ -10,8 +10,9 @@ import {
 const router = express.Router()
 
 router.get("/", listAllExercises)
-router.post("/add", addExercise)
 router.get('/:id', getExercise)
+
+router.post("/add", addExercise)
 
 router.delete('/:id', deleteExercise)
 

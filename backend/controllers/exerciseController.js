@@ -1,5 +1,7 @@
 import Exercise from "../models/exercise.model.js"
 
+// get
+
 export const listAllExercises = async(req, res) => {
     try {
         const exercises = await Exercise.find()
@@ -14,7 +16,7 @@ export const addExercise = async(req, res) => {
         const username = req.body.username;
         const description = req.body.description
         const duration = Number(req.body.duration);
-        const date = Date.parrse(req.body.date);
+        const date = Date.parse(req.body.date);
 
         const newExercise = new Exercise({
             username,

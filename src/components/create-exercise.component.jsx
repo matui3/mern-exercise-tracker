@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker'
 import axios from 'axios'
+import "react-datepicker/dist/react-datepicker.css";
 
 function CreateExercise() {
     const refContainer = useRef("")
@@ -14,55 +15,88 @@ function CreateExercise() {
     })
 
     useEffect(() => {
-        axios.get('http://localhost:5000/users').then(res => {
-            if (res.data.length > 0) {
-                setProperties({
-                    users: res.data.map(user => user.name),
-                    name: res.data[0].name
-                })
+        async function fetchData() {
+            try {
+                const response = await axios.get('http://localhost:5000/users/')
+                if (response.data.length > 0) {
+                    setProperties({
+                        users: response.data.map(user => user.username),
+                        name: response.data[0].username
+                    })
+                }
+            } catch (error) {
+                console.error(error)
             }
-        }).catch((error) => console.log(error)); 
-    })
+            
+        }
+        
+        fetchData();
+    }, [])
 
-    
-    return(
+    async function onSubmit(e) {
+        e.preventDefault();
+
+        const exercise = {
+            username: properties.name,
+            description: properties.description,
+            duration: properties.duration,
+            date: properties.date
+        }
+
+        try {
+            await axios.post('http://localhost:5000/exercises/add', exercise)
+            window.location = '/'
+        } catch(error) {
+            console.error("Error creating exercise:", error)
+        }
+
+        
+    }
+
+
+
+    return (
         <div>
             <h3>Create New Exercise Log</h3>
-            <form action="">
+            <form onSubmit={onSubmit}>
                 <div className='form-group'>
                     <label>Username: </label>
                     <select ref={refContainer}
-                    required
-                    className='form-control'
-                    value={properties.name}
-                    onChange={(e) => setProperties({name: e.target.value})}>{
-                        properties.users.map((user) => {
-                            return <option key={user}
-                            value={user}>{user}</option>
-                        })
+                        required
+                        className='form-control'
+                        value={properties.name}
+                        onChange={(e) => setProperties({ ...properties,
+                            name: e.target.value })}>{
+                            properties.users.map((user) => {
+                                return <option key={user}
+                                    value={user}>{user}</option>
+                            })
+
+                        }</select>
                     
-                    }</select>
                 </div>
                 <div className='form-group'>
                     <label >Description: </label>
                     <input type="text"
-                    required
-                    className='form-control'
-                    value={properties.description}
-                    onChange={(e) => setProperties({description: e.target.value})} />
+                        required
+                        className='form-control'
+                        value={properties.description}
+                        onChange={(e) => setProperties({ ...properties,
+                        description: e.target.value })} />
                 </div>
                 <div className='form-group'>
                     <label htmlFor="">Duration (in minutes): </label>
                     <input type="text"
-                    className='form-control'
-                    value={properties.duration}
-                    onChange={(e) => setProperties({duration: e.target.value})} />
+                        className='form-control'
+                        value={properties.duration}
+                        onChange={(e) => setProperties({ ...properties,
+                        duration: e.target.value })} />
                 </div>
                 <div className='form-group'>
                     <label>Date: </label>
-                    <DatePicker 
-                    selected={properties.date}
-                    onChange={(date) => setProperties({date: date})}/>
+                    <DatePicker
+                        selected={properties.date}
+                        onChange={(newDate) => setProperties({ ...properties, date: newDate })} />
                 </div>
                 <div className='form-group'>
                     <input type="submit" value="Create Exercise Log" className='btn btn-primary' />

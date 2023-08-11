@@ -3,34 +3,42 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 function ExerciseList() {
-    const Exercise = props => {
+    const Exercise = props => (
         <tr>
-            <td>{props.exercise.name}</td>
+            <td>{props.exercise.username}</td>
             <td>{props.exercise.description}</td>
-            <td>{props.exericse.duration}</td>
-            <td>{props.exercise.date.substring(0,10)}</td>
+            <td>{props.exercise.duration}</td>
+            <td>{props.exercise.date.substring(0, 10)}</td>
             <td>
-                <Link to={"/edit/" + props.exercise._id}>edit</Link> | <a href='#' onClick={() => {props.deleteExercise(props.exercise._id)}}>delete</a>
+                <Link to={"/edit/" + props.exercise._id}>edit</Link> | <a href='#' onClick={() => { props.deleteExercise(props.exercise._id) }}>delete</a>
             </td>
         </tr>
-    }
+    )
     const [exerciseList, setExerciseList] = useState([])
 
     useEffect(() => {
-        axios.get('http://localhost:5000/exercises/').then(res => {
-            setExerciseList(res.data)
-        }).catch((err) => {console.log(err)})
-    })
+        async function fetchData() {
+            try {
+                const response = await axios.get('http://localhost:5000/exercises/')
+                setExerciseList(response.data);
+            } catch(error) {
+                console.error(error)
+            }
+            
+        };
 
-    function deleteExericse(id) {
-        axios.delete('http://localhost:5000/exercises/'+id).then(res => console.log(res.data));
+        fetchData()
+    }, [])
 
+    async function deleteExercise(id) {
+        await axios.delete('http://localhost:5000/exercises/' + id)
         setExerciseList(exerciseList.filter(el => el._id !== id))
     }
 
     function list() {
+        console.log(exerciseList)
         return exerciseList.map(currentExercise => {
-            return <Exercise exercise={currentExercise} deleteExercise={deleteExericse} key={currentExercise._id}/>
+            return <Exercise exercise={currentExercise} deleteExercise={deleteExercise} key={currentExercise._id} />
         })
     }
 
@@ -48,7 +56,7 @@ function ExerciseList() {
                     </tr>
                 </thead>
                 <tbody>
-                    {list}
+                    {list()}
                 </tbody>
             </table>
         </div>
